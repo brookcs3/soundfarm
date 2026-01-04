@@ -1,0 +1,404 @@
+<html><head>
+
+<script src="gauge3.3_files/jquery-3.4.1.min"></script>
+<script src="gauge3.3_files/d3.v3.min"></script>
+
+<style>
+body {
+    
+    font-weight: 400;
+    font-family: 'Arial';
+}
+
+#chart {
+    width: 270px;
+	height:130px;
+    margin: 0 auto;
+}
+
+.gauge .background {
+    fill: #ddd;
+}
+
+.gauge .value {
+    fill: #777;
+    font-size: 1.5rem;
+}
+
+.gauge .value tspan {
+    font-size: 1rem;
+}
+
+.gauge .scale text {
+    fill: #999;
+    font-size: 0.75rem;
+}
+
+.title_time{
+	font-family: 'Arial';
+	width:12.5%;font-size:0.7rem;
+}
+</style></head>
+
+
+
+
+
+<body style="margin:0;background:#fff" marginwidth="0" marginheight="0">
+<div style="width:350px;height:210px">
+<table style="width:100%">
+	<tbody><tr style="text-align:center;height:30px;user-select:none">
+		<td id="tab_1m" class="title_time">1m </td>
+		<td id="tab_5m" class="title_time">5m</td>
+		<td id="tab_10m" class="title_time">10m </td>
+		<td id="tab_30m" class="title_time">30m </td>
+		<td id="tab_1h" class="title_time">1h </td>
+		<td id="tab_2h" class="title_time">2h </td>
+		<td id="tab_4h" class="title_time">4h </td>
+		<td id="tab_24h" class="title_time">24h </td>
+	</tr>
+	<tr id="bottom_blue_bars" style="text-align:center;font-size:14px;height:5px">
+		<td id="bottom_tab_1m" style="background-color: rgb(127, 181, 248); width: 12.5%;"></td>
+		<td id="bottom_tab_5m" style="background-color: rgb(255, 255, 255); width: 12.5%;"></td>
+		<td id="bottom_tab_10m" style="background-color:#ffffff;width:12.5%"></td>
+		<td id="bottom_tab_30m" style="background-color:#ffffff;width:12.5%"></td>
+		<td id="bottom_tab_1h" style="background-color:#ffffff;width:12.5%"></td>
+		<td id="bottom_tab_2h" style="background-color:#ffffff;width:12.5%"></td>
+		<td id="bottom_tab_4h" style="background-color:#ffffff;width:12.5%"></td>
+		<td id="bottom_tab_24h" style="background-color:#ffffff;width:12.5%"></td>
+	</tr>
+</tbody></table>
+<div id="chart" style="position: relative; top: 30px; background-image: radial-gradient(circle at 50% 91%, white, rgba(246, 113, 110, 0.498039), rgba(255, 72, 72, 0.498039)); background-position: initial initial; background-repeat: initial initial;">
+<img src="gauge3.3_files/gauge-panel.png" alt="" style="position:absolute;width:270px;height:130px">
+<font style="position:absolute;top:80px;left:-36px;font-size:0.6rem;text-align:center;">STRONG<br>SELL </font>
+<font style="position:absolute;top:12px;left:5px;font-size:0.6rem">SELL</font>
+<font style="position:absolute;top:-20px;left:110px;font-size:0.6rem">NEUTRAL</font>
+<font style="position:absolute;top:12px;left:240px;font-size:0.6rem">BUY</font>
+<font style="position:absolute;top:80px;left:266px;font-size:0.6rem;text-align:center;">STRONG<br>BUY</font>
+
+<img src="gauge3.3_files/gauge_panel.svg" alt="" style="position:absolute;width:270px;height:130px">
+
+<img id="meter_needle" src="gauge3.3_files/svg-meter-gauge-needle.svg" alt="" style="position: absolute; left: 125px; top: 30px; z-index: 100; transform: rotate(270deg); transform-origin: 50% 90.7%;">
+<svg width="300" height="170" class="gauge"><g transform="translate(150,150)"><path d="M-150,-1.8369701987210297e-14A150,150 0 0,1 -150,-1.8369701987210297e-14L-90,-1.1021821192326179e-14A90,90 0 0,0 -90,-1.1021821192326179e-14Z" style="fill: rgb(219, 40, 40);"></path></g><g transform="translate(150,135)">0.0<tspan>%</tspan></g><g transform="translate(150,165)" class="scale"></g></svg></div>
+<div id="vm_logo" style="position:absolute;top:188px;left:60px;font-size:0.7rem;text-align:center;color:#aaa;z-index:1;">coinfarm.online</div>
+<div id="vm_site" style="position:absolute;top:224px;left:60px;font-size:0.7rem;text-align:center;color:#aaa;z-index:1;">1582236406873</div>
+
+<script language="javascript">
+
+var selected_field = "tab_5m";
+var farm_id = '';
+var farm_key = '';
+
+var connect = 0;
+
+var g_on_time = 1;
+
+
+
+    function fn_trade_tot() {
+
+        $.ajax({
+            type: "POST"
+        , async: true
+        , url: "./json_time_tot.asp?target=binance&times=" + g_on_time
+        , dataType: "json"
+        , timeout: 10000
+        , cache: false
+        , contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+        , success: function (response, status, request) {
+
+            b1 = response.buy;
+            b2 = response.sell;
+
+	
+            b_total = parseFloat(b1 / (b1 + b2)) * 100;
+
+            b_total = parseFloat(b_total).toFixed(2);
+
+            update(b_total);
+
+            $('#vm_site').html(new Date().getTime());
+
+        }
+        });
+
+
+    }
+
+
+function fn_coinfarm_rs(pData)
+{
+
+
+
+	var obj = JSON.parse(pData);
+	
+	b1 = obj.binance_5_buy;
+	b2 = obj.binance_5_sell;
+	
+	if(selected_field == "tab_1m") { b1 =  obj.binance_1_buy; b2 = obj.binance_1_sell;}
+	if(selected_field == "tab_5m") { b1 =  obj.binance_5_buy; b2 = obj.binance_5_sell;}
+	if(selected_field == "tab_10m") { b1 =  obj.binance_10_buy; b2 = obj.binance_10_sell;}
+	if(selected_field == "tab_30m") { b1 =  obj.binance_30_buy; b2 = obj.binance_30_sell;}
+	if(selected_field == "tab_1h") { b1 =  obj.binance_60_buy; b2 = obj.binance_60_sell;}
+	if(selected_field == "tab_2h") { b1 =  obj.binance_120_buy; b2 = obj.binance_120_sell;}
+	if(selected_field == "tab_4h") { b1 =  obj.binance_240_buy; b2 = obj.binance_240_sell;}
+	if(selected_field == "tab_24h") { b1 =  obj.binance_1440_buy; b2 = obj.binance_1440_sell;}
+	
+	b_total = parseFloat(b1 / (b1 + b2)) * 100;
+
+	b_total = parseFloat(b_total).toFixed(2);
+
+	update(b_total);
+
+	$('#vm_site').html(new Date().getTime());
+}
+
+
+function allClearBlueBar() {
+
+	$('#bottom_blue_bars').children('td').each(function() {
+		$(this).css("background-color","#ffffff");
+	});
+}
+
+$('#tab_1m').click(function(event) {
+    g_on_time = 1;
+	allClearBlueBar();
+	selected_field = "tab_1m";
+	$('#bottom_tab_1m').css("background-color","#7fb5f8");
+});
+
+
+$('#tab_5m').click(function(event) {
+    g_on_time = 5;
+	allClearBlueBar();
+	selected_field = "tab_5m";
+	$('#bottom_tab_5m').css("background-color","#7fb5f8");
+});
+
+$('#tab_10m').click(function(event) {
+    g_on_time = 10;
+	allClearBlueBar();
+	selected_field = "tab_10m";
+	$('#bottom_tab_10m').css("background-color","#7fb5f8");
+});
+
+$('#tab_30m').click(function(event) {
+    g_on_time = 30;
+    allClearBlueBar();
+	selected_field = "tab_30m";
+	$('#bottom_tab_30m').css("background-color","#7fb5f8");
+});
+
+$('#tab_1h').click(function(event) {
+    g_on_time = 60;
+	allClearBlueBar();
+	selected_field = "tab_1h";
+	$('#bottom_tab_1h').css("background-color","#7fb5f8");
+});
+
+$('#tab_2h').click(function(event) {
+    g_on_time = 120;
+	allClearBlueBar();
+	selected_field = "tab_2h";
+	$('#bottom_tab_2h').css("background-color","#7fb5f8");
+});
+
+$('#tab_4h').click(function(event) {
+    g_on_time = 240;
+	allClearBlueBar();
+	selected_field = "tab_4h";
+	$('#bottom_tab_4h').css("background-color","#7fb5f8");
+});
+
+$('#tab_24h').click(function(event) {
+    g_on_time = 1440;
+	allClearBlueBar();
+	selected_field = "tab_24h";
+	$('#bottom_tab_24h').css("background-color","#7fb5f8");
+});
+
+
+	
+function gauge_api_connector()
+{
+        try {
+
+            wwscoinfarm = new WebSocket("wss://cnt.coinfarm.online:10014");
+
+            wwscoinfarm.onopen = function () {
+		$('#vm_logo').html('coinfarm.online');		
+                wwscoinfarm.send("LCUS|" + farm_id + "|" + farm_key + "|");
+		connect = 1;
+            }
+
+            wwscoinfarm.onmessage = function (e) {
+                fn_coinfarm_rs(e.data);
+            }
+            wwscoinfarm.onclose = function (e) {
+		connect = 0;
+		$('#vm_logo').html('connecting..');
+                setTimeout("gauge_api_connector()", 5000);
+            }
+            wwscoinfarm.onerror = function (e) {
+		connect = 0;
+                fn_coinfarm_onError(e);
+		$('#vm_logo').html('connecting..');
+		setTimeout("gauge_api_connector()", 5000);
+            }
+        } catch (exception) {
+            alert('Error : ' + exception);
+        }
+ }
+
+function fn_ping(){
+	if (connect == 1 ){
+
+		wwscoinfarm.send("PING|" + farm_id + "|" + farm_key + "|");
+		
+	}
+
+}
+
+
+function fn_coinfarm_onError(exceptionError)
+{
+	console.log(exceptionError);
+}
+
+
+var r = 400;
+	var cf = 2 * Math.PI * r;
+		var semi_cf = cf / 2;
+		var semi_cf_1by3 = semi_cf / 3;
+		var semi_cf_2by3 = semi_cf_1by3 * 2;
+		
+var size = 150,
+    thickness = 60;
+
+var arc = d3.svg.arc()
+    .innerRadius(size - thickness)
+    .outerRadius(size)
+    .startAngle(-Math.PI / 2);
+
+var svg = d3.select('#chart').append('svg')
+    .attr('width', size * 2)
+    .attr('height', size + 20)
+    .attr('class', 'gauge');
+
+var chart = svg.append('g')
+    .attr('transform', 'translate(' + size + ',' + size + ')')
+
+var foreground = chart.append('path')
+    .datum({
+        endAngle: -Math.PI / 2
+    })
+    .style('fill', '#db2828')
+    .attr('d', arc);
+
+var value = svg.append('g')
+    .attr('transform', 'translate(' + size + ',' + (size * .9) + ')')
+
+var scale = svg.append('g')
+    .attr('transform', 'translate(' + size + ',' + (size + 15) + ')')
+    .attr('class', 'scale');
+
+/*
+setInterval(function() {
+    update(Math.random() * 100);
+}, 1500);
+*/
+function decimalToHexString(number)
+{
+  if (number < 0)
+  {
+    number = 0xFFFFFFFF + number + 1;
+  }
+
+  return number.toString(16).toUpperCase();
+}
+
+n = "";
+
+function update(v) {
+    v = d3.format('.1f')(v);
+ 
+    value.transition()
+        .duration(750)
+        .call(textTween, v);
+}
+
+function arcTween(transition, v) {
+    var newAngle = v / 100 * Math.PI - Math.PI / 2;
+    transition.attrTween('d', function(d) {
+        var interpolate = d3.interpolate(d.endAngle, newAngle);
+        return function(t) {
+            d.endAngle = interpolate(t);
+			
+			return arc(d);
+        };
+    });
+}
+
+function textTween(transition, v) {
+    transition.tween('text', function() {
+        var interpolate = d3.interpolate(this.innerHTML, v),
+            split = (v + '').split('.'),
+            round = (split.length > 1) ? Math.pow(10, split[1].length) : 1;
+        return function(t) {
+			this.innerHTML = d3.format('.1f')(Math.round(interpolate(t) * round) / round) + '<tspan>%</tspan>';
+			
+			var percent = Math.round(interpolate(t) * round) / round;
+			meter_needle =  document.querySelector('#meter_needle');
+			
+			var meter_value = semi_cf - ((percent * semi_cf) / 100);
+		    meter_needle.style.transform = 'rotate(' + (270 + ((percent * 180) / 100)) + 'deg)';
+			//this.innerHTML = $("#meter_needle").html();
+			s = "";
+	
+			var alpha = 1.0;
+			if(v >= 0 && v <= 40 ) {
+				alpha = (1.0-(v/150))/2;
+				s ="white,rgba(246,113,110,"+alpha+"),rgba(255,72 ,72 ,"+alpha+")";
+			} else if(v >= 40 && v < 60 ) {
+				alpha = alpha/2;
+				s ="white,rgb(229,229,229,"+alpha+"),rgba(151,151,151,"+alpha+")";
+			} else if(v >= 60 && v <= 100 ) {
+				alpha = (v/150)/2;
+				s ="white,rgba(166,217,255,"+alpha+"),rgba(0,123,215,"+alpha+")";
+			}
+	
+			//console.log("v:" + v + "alpha : "+ alpha);
+			n = s;
+		
+
+			hexString = decimalToHexString(parseInt(v.toString()));
+	
+			$('#chart').css({"background": "radial-gradient(circle at 50% 91% ,"+s+")"});
+	
+			meter_needle.style.transformOrigin = "50% 90.7%";
+        };
+    });
+}
+
+$(document).ready( function () {
+
+	allClearBlueBar();
+	selected_field = "tab_1m";
+	$('#bottom_tab_1m').css("background-color","#7fb5f8");
+
+    
+	//gauge_api_connector();
+	fn_trade_tot();
+	var timer20 = setInterval('fn_trade_tot()', 1000);
+
+});
+	
+	
+
+
+</script>
+
+</div>
+</body></html>
