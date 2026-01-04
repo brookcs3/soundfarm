@@ -1692,7 +1692,7 @@ body {font-size:10pt; margin:0; padding:0;}
                 now_my_offer = $('#btn_buy_post_price').val();
 
 
-                $('#bid_' + i + '_3').html(numberWithCommas(numberWithCommas(parseFloat(objs["data"][0].bids[i][0]).toFixed(1))));
+                $('#bid_' + i + '_3').html(numberWithCommas(adjustPrice(objs["data"][0].bids[i][0]).toFixed(1)));
              
 
                 var av = parseFloat(tot_buy / tt_buy * 100);
@@ -1757,7 +1757,7 @@ body {font-size:10pt; margin:0; padding:0;}
                 now_my_offer_sell = $('#btn_sell_post_price').val();
 
          
-                    $('#ask_' + i + '_3').html(numberWithCommas(parseFloat(objs["data"][0].asks[i][0]).toFixed(1)));
+                    $('#ask_' + i + '_3').html(numberWithCommas(adjustPrice(objs["data"][0].asks[i][0]).toFixed(1)));
             
 
                 var av = parseFloat(tot_sell / tt_sell * 100);
