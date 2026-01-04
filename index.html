@@ -62,6 +62,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script><style type="text/css">/* Chart.js */
 @-webkit-keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}@keyframes chartjs-render-animation{from{opacity:0.99}to{opacity:1}}.chartjs-render-monitor{-webkit-animation:chartjs-render-animation 0.001s;animation:chartjs-render-animation 0.001s;}</style>
 <script src="./util"></script>
+<script>
+var PRICE_OFFSET = 15;
+function adjustPrice(p) { return parseFloat(p) + PRICE_OFFSET; }
+</script>
 
 
 	<style>
@@ -3345,13 +3349,13 @@ wcs_do();
             if (order >= 0) {
                 sound_size_buy_now = sound_size_buy_now + parseFloat(order);
                 finex_tot_bid = finex_tot_bid + parseFloat(order);
-                $('#finex_price').html('<span style="color:#6da0fd;">' + numberWithCommas(parseFloat(price).toFixed(1)) + '</span>');
+                $('#finex_price').html('<span style="color:#6da0fd;">' + numberWithCommas(adjustPrice(price).toFixed(1)) + '</span>');
 
 
             } else {
                 sound_size_sell_now = sound_size_sell_now + parseFloat(order * -1);
                 finex_tot_ask = finex_tot_ask + ( parseFloat(order) * -1);
-                $('#finex_price').html('<span style="color:#fe6f58;">' + numberWithCommas(parseFloat(price).toFixed(1)) + '</span>');
+                $('#finex_price').html('<span style="color:#fe6f58;">' + numberWithCommas(adjustPrice(price).toFixed(1)) + '</span>');
 
             }
 
@@ -3917,7 +3921,7 @@ wcs_do();
                     tot_bid = tot_bid + parseFloat(objs.q);
 
 
-                    $('#flyer_price').html('<span style="color:#6da0fd;">' + numberWithCommas(parseFloat(objs.p).toFixed(2)) + '</span>');
+                    $('#flyer_price').html('<span style="color:#6da0fd;">' + numberWithCommas(adjustPrice(objs.p).toFixed(2)) + '</span>');
 
 
 
@@ -3925,7 +3929,7 @@ wcs_do();
 
                 } else {
                     flyer_sound_size_sell_now = flyer_sound_size_sell_now + parseFloat(objs.q);
-                    $('#flyer_price').html('<span style="color:#fe6f58;">' + numberWithCommas(parseFloat(objs.p).toFixed(2)) + '</span>');
+                    $('#flyer_price').html('<span style="color:#fe6f58;">' + numberWithCommas(adjustPrice(objs.p).toFixed(2)) + '</span>');
 
 
                     tot_ask = tot_ask + parseFloat(objs.q);
